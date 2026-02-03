@@ -349,7 +349,7 @@ func TestEmitLiteralsVeryLong(t *testing.T) {
 		}
 		
 		// Also test non-first
-		n, err = emitLiterals(lit, dst, false)
+		_, err = emitLiterals(lit, dst, false)
 		if err != nil {
 			t.Errorf("emitLiterals(%d, false) failed: %v", size, err)
 		}
@@ -444,7 +444,7 @@ func TestEmitLiteralsBoundaryConditions(t *testing.T) {
 	// Test litLen = 18 (boundary for extended encoding)
 	lit18 := bytes.Repeat([]byte("X"), 18)
 	dst = make([]byte, 30)
-	n, err = emitLiterals(lit18, dst, true)
+	_, err = emitLiterals(lit18, dst, true)
 	if err != nil {
 		t.Errorf("litLen=18 first: err=%v", err)
 	}
@@ -452,7 +452,7 @@ func TestEmitLiteralsBoundaryConditions(t *testing.T) {
 	// Test litLen = 19 (first extended encoding)
 	lit19 := bytes.Repeat([]byte("X"), 19)
 	dst = make([]byte, 30)
-	n, err = emitLiterals(lit19, dst, true)
+	_, err = emitLiterals(lit19, dst, true)
 	if err != nil {
 		t.Errorf("litLen=19 first: err=%v", err)
 	}
