@@ -286,7 +286,8 @@ eof:
 // LZO1Z literal runs and matches are mostly a few bytes long, where copy's
 // memmove call costs more than the copy itself. From 4 bytes up, two loads
 // and stores of the same width cover the run. The second ends exactly at the
-// last byte, so nothing past d is written.
+// last byte, so nothing past d is written. Below 4 bytes only the M1 match
+// after a literal run gets here, which is rare enough to leave to copy.
 func copyShort(d, s []byte) {
 	switch n := len(s); {
 	case n > 16:
@@ -300,9 +301,7 @@ func copyShort(d, s []byte) {
 		binary.LittleEndian.PutUint32(d, a)
 		binary.LittleEndian.PutUint32(d[n-4:], b)
 	default:
-		for i := range s {
-			d[i] = s[i]
-		}
+		copy(d, s)
 	}
 }
 
