@@ -315,13 +315,23 @@ func copyMatch(dst []byte, op, mOff, n int) {
 		copyShort(dst[op:op+n], dst[op-mOff:op-mOff+n])
 		return
 	}
-	// d and s share dst's array, so a forward copy reads back bytes it has
-	// just written. Slicing both to n lets the compiler drop the per-byte
-	// bounds checks.
 	d := dst[op : op+n]
-	s := dst[op-mOff : op-mOff+n]
-	for i := range d {
-		d[i] = s[i]
+	if n <= 16 {
+		// d and s share dst's array, so a forward copy reads back bytes it
+		// has just written. Slicing both to n drops the per-byte bounds
+		// checks.
+		s := dst[op-mOff : op-mOff+n]
+		for i := range d {
+			d[i] = s[i]
+		}
+		return
+	}
+	// A long overlapping match, such as a run of zeros, repeats its first
+	// mOff bytes. Copy them once, then double the filled prefix. Every
+	// prefix length is a multiple of mOff, so the period holds.
+	filled := copy(d, dst[op-mOff:op])
+	for filled < n {
+		filled += copy(d[filled:], d[:filled])
 	}
 }
 
